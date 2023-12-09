@@ -25,7 +25,6 @@ func NewHelloHandler(helloUsecase usecase.HelloUsecase) HelloHandler {
 
 func (t *helloHandler) Hello() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		fmt.Println(c.Request().Host)
 		res := t.helloUsecase.Hello()
 		fmt.Println(res)
 		return c.JSON(http.StatusOK, res)

@@ -26,7 +26,7 @@ func main() {
 	}))
 
 	//todo: IPアクセス制限
-	// CSRFでやる？
+	// firebaseの認証で弾く
 
 	router.InitHelloRouter(e, helloHandler)
 	e.Logger.Fatal(e.Start(":8080"))
