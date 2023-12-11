@@ -35,6 +35,6 @@ func (t *helloHandler) Hello() echo.HandlerFunc {
 		fmt.Println(uid)
 		res := t.helloUsecase.Hello()
 		fmt.Println(res)
-		return c.JSON(http.StatusOK, res)
+		return c.JSON(http.StatusOK, uid)
 	}
 }
