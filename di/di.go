@@ -1,6 +1,7 @@
 package di
 
 import (
+	firebaseauth "github.com/kid2Ion/selfManageApp-go/adapter/firebase"
 	"github.com/kid2Ion/selfManageApp-go/domain/repository"
 	"github.com/kid2Ion/selfManageApp-go/infra"
 	"github.com/kid2Ion/selfManageApp-go/server"
@@ -24,9 +25,9 @@ func injectHelloUsecase() usecase.HelloUsecase {
 	return usecase.NewHelloUsecase(repo)
 }
 
-func InjectHandler() server.HelloHandler {
+func InjectHandler(authClient firebaseauth.AuthClient) server.HelloHandler {
 	usecase := injectHelloUsecase()
-	return server.NewHelloHandler(usecase)
+	return server.NewHelloHandler(usecase, authClient)
 }
 
 // hogehoge
