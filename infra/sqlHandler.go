@@ -3,12 +3,9 @@ package infra
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"os"
 
 	_ "github.com/lib/pq"
-
-	"github.com/joho/godotenv"
 )
 
 type SqlHandler struct {
@@ -16,14 +13,6 @@ type SqlHandler struct {
 }
 
 func NewSqlHandler() *SqlHandler {
-	// 環境変数適応
-	if os.Getenv("GO_ENV") == "dev" {
-		err := godotenv.Load()
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-
 	connStr := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", os.Getenv("POSTGRES_HOST"),
 		os.Getenv("POSTGRES_USER"), os.Getenv("POSTGRES_PW"),
 		os.Getenv("POSTGRES_DB"), os.Getenv("POSTGRES_PORT"))
