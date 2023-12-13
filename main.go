@@ -36,6 +36,7 @@ func main() {
 	}))
 
 	//todo: logger
+	// todo: migration
 
 	// auth init
 	authClient, err := firebaseauth.NewClient()
@@ -44,7 +45,12 @@ func main() {
 	}
 
 	// di
-	helloHandler := di.InjectHandler(authClient)
+	// hello
+	helloHandler := di.InjectHelloHandler(authClient)
 	router.InitHelloRouter(e, helloHandler)
+	// user
+	userHandler := di.InjectUserHandler(authClient)
+	router.InitUserRouter(e, userHandler)
+
 	e.Logger.Fatal(e.Start(":8080"))
 }

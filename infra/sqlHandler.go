@@ -12,6 +12,8 @@ type SqlHandler struct {
 	DB *sql.DB
 }
 
+// todo migrationファイル
+
 func NewSqlHandler() *SqlHandler {
 	connStr := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", os.Getenv("POSTGRES_HOST"),
 		os.Getenv("POSTGRES_USER"), os.Getenv("POSTGRES_PW"),
@@ -23,9 +25,10 @@ func NewSqlHandler() *SqlHandler {
 	// usersテーブル作成
 	cmd := fmt.Sprintf(`
 		create table if not exists %s (
-			uuid uuid not null,
+			user_uuid uuid not null,
 			mail text not null,
 			name text not null,
+			firebase_uuid uuid not null,
 			created_at timestamp,
 			updated_at timestamp
 		)`, "users")

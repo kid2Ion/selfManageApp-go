@@ -10,4 +10,7 @@ func InitHelloRouter(e *echo.Echo, helloHandler server.HelloHandler) {
 	e.GET("/", helloHandler.Hello())
 }
 
-// hogehoge
+// user
+func InitUserRouter(e *echo.Echo, userHandler server.UserHandler) {
+	e.POST("/user", userHandler.Create())
+}
