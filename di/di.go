@@ -25,9 +25,24 @@ func injectHelloUsecase() usecase.HelloUsecase {
 	return usecase.NewHelloUsecase(repo)
 }
 
-func InjectHandler(authClient firebaseauth.AuthClient) server.HelloHandler {
+func InjectHelloHandler(authClient firebaseauth.AuthClient) server.HelloHandler {
 	usecase := injectHelloUsecase()
 	return server.NewHelloHandler(usecase, authClient)
 }
 
-// hogehoge
+// user
+
+func injectUserRepository() repository.UserRepository {
+	sqlHandler := injectDB()
+	return infra.NewUserRepository(sqlHandler)
+}
+
+func injectUserUsecase() usecase.UserUsecase {
+	repo := injectUserRepository()
+	return usecase.NewUserUsecase(repo)
+}
+
+func InjectUserHandler(authClient firebaseauth.AuthClient) server.UserHandler {
+	usecase := injectUserUsecase()
+	return server.NewUserHandler(usecase, authClient)
+}
