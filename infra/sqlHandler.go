@@ -28,7 +28,7 @@ func NewSqlHandler() *SqlHandler {
 			user_uuid uuid not null,
 			mail text not null,
 			name text not null,
-			firebase_uuid uuid not null,
+			firebase_uuid text not null,
 			created_at timestamp,
 			updated_at timestamp
 		)`, "users")
