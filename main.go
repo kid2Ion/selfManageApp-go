@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -12,6 +11,7 @@ import (
 	"github.com/kid2Ion/selfManageApp-go/router"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+	"golang.org/x/exp/slog"
 )
 
 func main() {
@@ -23,7 +23,7 @@ func main() {
 		}
 	}
 
-	fmt.Println("start server")
+	slog.Info("start server")
 	e := echo.New()
 
 	// CORS
@@ -35,7 +35,6 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	//todo: logger
 	// todo: migration
 
 	// auth init

@@ -3,7 +3,6 @@ package firebaseauth
 import (
 	"context"
 	"encoding/base64"
-	"fmt"
 	"net/http"
 	"os"
 	"strings"
@@ -11,6 +10,7 @@ import (
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/auth"
 	"github.com/labstack/echo"
+	"golang.org/x/exp/slog"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/option"
 )
@@ -32,7 +32,7 @@ func NewClient() (AuthClient, error) {
 	encodedKey := os.Getenv("FB_PRIVATE_KEY_ENCODED")
 	decodedBytes, err := base64.StdEncoding.DecodeString(encodedKey)
 	if err != nil {
-		fmt.Println("decode失敗")
+		slog.Error("failed to decode")
 		return nil, err
 	}
 	credentials, err := google.CredentialsFromJSON(ctx,
@@ -44,7 +44,7 @@ func NewClient() (AuthClient, error) {
 		"https://www.googleapis.com/auth/firebase.database",
 	)
 	if err != nil {
-		fmt.Println("credential 失敗")
+		slog.Error("failed to credential")
 		return nil, err
 	}
 
@@ -54,13 +54,13 @@ func NewClient() (AuthClient, error) {
 	}
 	app, err := firebase.NewApp(ctx, conf, opt)
 	if err != nil {
-		fmt.Println("firebase 初期化失敗:", err)
+		slog.Error("failed to init firebase app")
 		return nil, err
 	}
 
 	client, err := app.Auth(ctx)
 	if err != nil {
-		fmt.Println("auth client 初期化失敗:", err)
+		slog.Error("failed to init firebase client")
 		return nil, err
 	}
 
@@ -70,24 +70,16 @@ func NewClient() (AuthClient, error) {
 func (t *authClient) VerifyIDToken(c echo.Context) (string, error) {
 	authToken := c.Request().Header.Get("Authorization")
 	if authToken == "" {
-		fmt.Println("auth token が無い")
+		slog.Error("empty auth token")
 		return "", &echo.HTTPError{
 			Code:    http.StatusBadRequest,
 			Message: "empty auth token",
 		}
 	}
-	// 接続確認用　user情報取得
-	// a, err := t.authClient.GetUser(t.ctx, "hoge")
-	// if err != nil {
-	// 	fmt.Println("koko?")
-	// 	fmt.Println(err)
-	// 	return "", err
-	// }
-	// fmt.Println(a.Email)
 	idToken := strings.Replace(authToken, "Bearer ", "", 1)
 	token, err := t.authClient.VerifyIDToken(t.ctx, idToken)
 	if err != nil {
-		fmt.Println("auth token 無効")
+		slog.Error("invalid auth token")
 		return "", &echo.HTTPError{
 			Code:    http.StatusBadRequest,
 			Message: "invalid auth token",
