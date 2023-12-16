@@ -1,6 +1,8 @@
 package infra
 
-import "github.com/kid2Ion/selfManageApp-go/domain/repository"
+import (
+	"github.com/kid2Ion/selfManageApp-go/domain/repository"
+)
 
 type (
 	HelloRepository struct {

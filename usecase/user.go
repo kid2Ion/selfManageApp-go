@@ -11,6 +11,7 @@ import (
 type (
 	UserUsecase interface {
 		Create(*UserReq) (*UserRes, error)
+		Get(*UserReq) (*UserRes, error)
 	}
 	userusecase struct {
 		userRepo repository.UserRepository
@@ -30,6 +31,22 @@ type (
 // コンストラクタ
 func NewUserUsecase(userRepository repository.UserRepository) UserUsecase {
 	return &userusecase{userRepo: userRepository}
+}
+
+func (t *userusecase) Get(r *UserReq) (*UserRes, error) {
+	user := &model.User{
+		FirebaseUUID: r.FUUID,
+	}
+	res, err := t.userRepo.Get(user)
+	if err != nil {
+		return nil, err
+	}
+
+	return &UserRes{
+		UserUUID: res.UserUUID,
+		Email:    res.Email,
+		Name:     res.Name,
+	}, nil
 }
 
 func (t *userusecase) Create(r *UserReq) (*UserRes, error) {

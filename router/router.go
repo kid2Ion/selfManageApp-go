@@ -12,5 +12,6 @@ func InitHelloRouter(e *echo.Echo, helloHandler server.HelloHandler) {
 
 // user
 func InitUserRouter(e *echo.Echo, userHandler server.UserHandler) {
+	e.GET("/user", userHandler.Get())
 	e.POST("/user", userHandler.Create())
 }
