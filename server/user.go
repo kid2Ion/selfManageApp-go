@@ -1,12 +1,12 @@
 package server
 
 import (
-	"fmt"
 	"net/http"
 
 	firebaseauth "github.com/kid2Ion/selfManageApp-go/adapter/firebase"
 	"github.com/kid2Ion/selfManageApp-go/usecase"
 	"github.com/labstack/echo"
+	"golang.org/x/exp/slog"
 )
 
 type (
@@ -32,7 +32,7 @@ func (t *userHandler) Create() echo.HandlerFunc {
 		}
 		req := new(usecase.UserReq)
 		if err := c.Bind(req); err != nil {
-			fmt.Println("bind失敗")
+			slog.Error("failed to bind:\n %s", err.Error())
 			return err
 		}
 		req.FUUID = fUUID

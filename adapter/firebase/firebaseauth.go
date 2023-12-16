@@ -32,7 +32,7 @@ func NewClient() (AuthClient, error) {
 	encodedKey := os.Getenv("FB_PRIVATE_KEY_ENCODED")
 	decodedBytes, err := base64.StdEncoding.DecodeString(encodedKey)
 	if err != nil {
-		slog.Error("failed to decode")
+		slog.Error("failed to decode:\n %s", err.Error())
 		return nil, err
 	}
 	credentials, err := google.CredentialsFromJSON(ctx,
@@ -44,7 +44,7 @@ func NewClient() (AuthClient, error) {
 		"https://www.googleapis.com/auth/firebase.database",
 	)
 	if err != nil {
-		slog.Error("failed to credential")
+		slog.Error("failed to credential:\n %s", err.Error())
 		return nil, err
 	}
 
@@ -54,13 +54,13 @@ func NewClient() (AuthClient, error) {
 	}
 	app, err := firebase.NewApp(ctx, conf, opt)
 	if err != nil {
-		slog.Error("failed to init firebase app")
+		slog.Error("failed to init firebase app:\n %s", err.Error())
 		return nil, err
 	}
 
 	client, err := app.Auth(ctx)
 	if err != nil {
-		slog.Error("failed to init firebase client")
+		slog.Error("failed to init firebase client:\n %s", err.Error())
 		return nil, err
 	}
 
@@ -79,7 +79,7 @@ func (t *authClient) VerifyIDToken(c echo.Context) (string, error) {
 	idToken := strings.Replace(authToken, "Bearer ", "", 1)
 	token, err := t.authClient.VerifyIDToken(t.ctx, idToken)
 	if err != nil {
-		slog.Error("invalid auth token")
+		slog.Error("invalid auth token:\n %s", err.Error())
 		return "", &echo.HTTPError{
 			Code:    http.StatusBadRequest,
 			Message: "invalid auth token",
