@@ -11,8 +11,10 @@ import (
 
 type (
 	UserHandler interface {
-		Create() echo.HandlerFunc
 		Get() echo.HandlerFunc
+		Create() echo.HandlerFunc
+		Update() echo.HandlerFunc
+		Delete() echo.HandlerFunc
 	}
 	userHandler struct {
 		userUsecase usecase.UserUsecase
@@ -58,5 +60,43 @@ func (t *userHandler) Create() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, err)
 		}
 		return c.JSON(http.StatusOK, res)
+	}
+}
+
+func (t *userHandler) Update() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		fUUID, err := t.authClient.VerifyIDToken(c)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err)
+		}
+		req := new(usecase.UserReq)
+		if err := c.Bind(req); err != nil {
+			slog.Error("failed to bind:\n %s", err.Error())
+			return c.JSON(http.StatusBadRequest, err)
+		}
+		req.FUUID = fUUID
+		res, err := t.userUsecase.Update(req)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err)
+		}
+		return c.JSON(http.StatusOK, res)
+	}
+}
+
+func (t *userHandler) Delete() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		_, err := t.authClient.VerifyIDToken(c)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err)
+		}
+		req := new(usecase.UserReq)
+		if err := c.Bind(req); err != nil {
+			slog.Error("failed to bind:\n %s", err.Error())
+			return c.JSON(http.StatusBadRequest, err)
+		}
+		if err = t.userUsecase.Delete(req); err != nil {
+			return c.JSON(http.StatusBadRequest, err)
+		}
+		return c.JSON(http.StatusOK, nil)
 	}
 }

@@ -52,7 +52,7 @@ func (t *UserRepository) Get(u *model.User) (*model.User, error) {
 	}
 	err = rows.Err()
 	if err != nil {
-		slog.Error("failed to fetch from db: %s", err.Error())
+		slog.Error("failed to fetch user from db: %s", err.Error())
 		return nil, err
 	}
 
@@ -63,7 +63,27 @@ func (t *UserRepository) Create(u *model.User) error {
 	cmd := "insert into users (user_uuid, mail, name, firebase_uuid, created_at, updated_at) values ($1, $2, $3, $4, $5, $6);"
 	_, err := t.SqlHandler.DB.Exec(cmd, u.UserUUID, u.Email, u.Name, u.FirebaseUUID, u.CreatedAt, u.UpdatedAt)
 	if err != nil {
-		slog.Error("failed to exec:\n %s", err.Error())
+		slog.Error("failed to create user:\n %s", err.Error())
+		return err
+	}
+	return nil
+}
+
+func (t *UserRepository) Update(u *model.User) error {
+	cmd := "update users set mail = $1, name = $2, updated_at = $3 where user_uuid = $4;"
+	_, err := t.SqlHandler.DB.Exec(cmd, u.Email, u.Name, u.UpdatedAt, u.UserUUID)
+	if err != nil {
+		slog.Error("failed to update user:\n %s", err.Error())
+		return err
+	}
+	return nil
+}
+
+func (t *UserRepository) Delete(u *model.User) error {
+	cmd := "delete from users where user_uuid = $1;"
+	_, err := t.SqlHandler.DB.Exec(cmd, u.UserUUID)
+	if err != nil {
+		slog.Error("failed to delete user:\n %s", err.Error())
 		return err
 	}
 	return nil
