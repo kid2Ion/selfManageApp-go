@@ -23,15 +23,29 @@ func NewSqlHandler() *SqlHandler {
 		panic(err)
 	}
 	// usersテーブル作成
-	cmd := fmt.Sprintf(`
-		create table if not exists %s (
+	cmd := `
+		-- userスキーマ作成
+		create schema if not exists user_setting;
+		comment on schema user_setting is 'user domainのデータを記録するスキーマです';
+		-- usersテーブル作成
+		create table if not exists user_setting.users (
 			user_uuid uuid not null,
 			mail text not null,
 			name text not null,
 			firebase_uuid text not null,
 			created_at timestamp,
-			updated_at timestamp
-		)`, "users")
+			updated_at timestamp,
+			constraint user_pkey primary key (user_uuid)
+		);
+		comment on table user_setting.users is 'user情報を管理するテーブルです';
+		comment on column user_setting.users.user_uuid is 'レコードを一意に識別するIDです';
+		comment on column user_setting.users.mail is 'メールアドレスです';
+		comment on column user_setting.users.name is '名前です';
+		comment on column user_setting.users.firebase_uuid is 'firebase上でuserを一意に識別するUIDです';
+		comment on column user_setting.users.created_at is 'レコードを初めに登録した日です';
+		comment on column user_setting.users.updated_at is 'レコードを更新した日です';
+		comment on constraint user_pkey on user_setting.users is 'PK制約です';
+		`
 	_, err = db.Exec(cmd)
 	if err != nil {
 		panic(err)
