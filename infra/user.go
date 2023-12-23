@@ -20,7 +20,7 @@ func NewUserRepository(sqlHandler SqlHandler) repository.UserRepository {
 }
 
 func (t *UserRepository) Get(u *model.User) (*model.User, error) {
-	q := "select * from users u where u.firebase_uuid = $1;"
+	q := "select * from user_setting.users u where u.firebase_uuid = $1;"
 	rows, err := t.SqlHandler.DB.Query(q, u.FirebaseUUID)
 	if err != nil {
 		slog.Error("failed to fetch from db: %s", err.Error())
@@ -60,7 +60,7 @@ func (t *UserRepository) Get(u *model.User) (*model.User, error) {
 }
 
 func (t *UserRepository) Create(u *model.User) error {
-	cmd := "insert into users (user_uuid, mail, name, firebase_uuid, created_at, updated_at) values ($1, $2, $3, $4, $5, $6);"
+	cmd := "insert into user_setting.users (user_uuid, mail, name, firebase_uuid, created_at, updated_at) values ($1, $2, $3, $4, $5, $6);"
 	_, err := t.SqlHandler.DB.Exec(cmd, u.UserUUID, u.Email, u.Name, u.FirebaseUUID, u.CreatedAt, u.UpdatedAt)
 	if err != nil {
 		slog.Error("failed to create user:\n %s", err.Error())
@@ -70,7 +70,7 @@ func (t *UserRepository) Create(u *model.User) error {
 }
 
 func (t *UserRepository) Update(u *model.User) error {
-	cmd := "update users set mail = $1, name = $2, updated_at = $3 where user_uuid = $4;"
+	cmd := "update user_setting.users set mail = $1, name = $2, updated_at = $3 where user_uuid = $4;"
 	_, err := t.SqlHandler.DB.Exec(cmd, u.Email, u.Name, u.UpdatedAt, u.UserUUID)
 	if err != nil {
 		slog.Error("failed to update user:\n %s", err.Error())
@@ -80,7 +80,7 @@ func (t *UserRepository) Update(u *model.User) error {
 }
 
 func (t *UserRepository) Delete(u *model.User) error {
-	cmd := "delete from users where user_uuid = $1;"
+	cmd := "delete from user_setting.users where user_uuid = $1;"
 	_, err := t.SqlHandler.DB.Exec(cmd, u.UserUUID)
 	if err != nil {
 		slog.Error("failed to delete user:\n %s", err.Error())
