@@ -12,7 +12,7 @@ import (
 type (
 	UserHandler interface {
 		Get() echo.HandlerFunc
-		GetWithUserId() echo.HandlerFunc
+		GetByUserId() echo.HandlerFunc
 		Create() echo.HandlerFunc
 		Update() echo.HandlerFunc
 		Delete() echo.HandlerFunc
@@ -44,7 +44,7 @@ func (t *userHandler) Get() echo.HandlerFunc {
 	}
 }
 
-func (t *userHandler) GetWithUserId() echo.HandlerFunc {
+func (t *userHandler) GetByUserId() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		fUUID, err := t.authClient.VerifyIDToken(c)
 		if err != nil {
@@ -57,7 +57,7 @@ func (t *userHandler) GetWithUserId() echo.HandlerFunc {
 		}
 		req.FUUID = fUUID
 		req.UserUUID = userId
-		res, err := t.userUsecase.GetWithUserId(req)
+		res, err := t.userUsecase.GetByUserId(req)
 		if err != nil {
 			return c.JSON(http.StatusNotFound, err)
 		}

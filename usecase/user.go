@@ -11,7 +11,7 @@ import (
 type (
 	UserUsecase interface {
 		Get(*UserReq) (*UserRes, error)
-		GetWithUserId(*UserReq) (*UserRes, error)
+		GetByUserId(*UserReq) (*UserRes, error)
 		Create(*UserReq) (*UserRes, error)
 		Update(*UserReq) (*UserRes, error)
 		Delete(*UserReq) error
@@ -53,7 +53,7 @@ func (t *userusecase) Get(r *UserReq) (*UserRes, error) {
 	}, nil
 }
 
-func (t *userusecase) GetWithUserId(r *UserReq) (*UserRes, error) {
+func (t *userusecase) GetByUserId(r *UserReq) (*UserRes, error) {
 	// TODO: 本当はRequestごとに構造体分けた方が良いかも
 	user := &model.User{
 		UserUUID: r.UserUUID,
