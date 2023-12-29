@@ -1,6 +1,7 @@
 package infra
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/kid2Ion/selfManageApp-go/domain/model"
@@ -20,8 +21,16 @@ func NewUserRepository(sqlHandler SqlHandler) repository.UserRepository {
 }
 
 func (t *UserRepository) Get(u *model.User) (*model.User, error) {
-	q := "select * from user_setting.users u where u.firebase_uuid = $1;"
-	rows, err := t.SqlHandler.DB.Query(q, u.FirebaseUUID)
+	queryWithFirebaseUserId := "select * from user_setting.users u where u.firebase_uuid = $1;"
+	queryWithUserId := "select * from user_setting.users u where u.user_uuid = $1;"
+
+	var rows *sql.Rows
+	var err error
+	if userId := u.UserUUID; userId == "" {
+		rows, err = t.SqlHandler.DB.Query(queryWithFirebaseUserId, u.FirebaseUUID)
+	} else {
+		rows, err = t.SqlHandler.DB.Query(queryWithUserId, userId)
+	}
 	if err != nil {
 		slog.Error("failed to fetch from db: %s", err.Error())
 		return nil, err

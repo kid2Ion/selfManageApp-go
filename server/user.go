@@ -12,6 +12,7 @@ import (
 type (
 	UserHandler interface {
 		Get() echo.HandlerFunc
+		GetWithUserId() echo.HandlerFunc
 		Create() echo.HandlerFunc
 		Update() echo.HandlerFunc
 		Delete() echo.HandlerFunc
@@ -38,6 +39,27 @@ func (t *userHandler) Get() echo.HandlerFunc {
 		})
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, err)
+		}
+		return c.JSON(http.StatusOK, res)
+	}
+}
+
+func (t *userHandler) GetWithUserId() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		fUUID, err := t.authClient.VerifyIDToken(c)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err)
+		}
+		req := new(usecase.UserReq)
+		userId := c.Param("userId")
+		if userId == "" {
+			return c.JSON(http.StatusBadRequest, nil) // TODO: エラー文言を入れる
+		}
+		req.FUUID = fUUID
+		req.UserUUID = userId
+		res, err := t.userUsecase.GetWithUserId(req)
+		if err != nil {
+			return c.JSON(http.StatusNotFound, err)
 		}
 		return c.JSON(http.StatusOK, res)
 	}

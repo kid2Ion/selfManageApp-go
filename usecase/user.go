@@ -11,6 +11,7 @@ import (
 type (
 	UserUsecase interface {
 		Get(*UserReq) (*UserRes, error)
+		GetWithUserId(*UserReq) (*UserRes, error)
 		Create(*UserReq) (*UserRes, error)
 		Update(*UserReq) (*UserRes, error)
 		Delete(*UserReq) error
@@ -49,6 +50,23 @@ func (t *userusecase) Get(r *UserReq) (*UserRes, error) {
 		UserUUID: res.UserUUID,
 		Email:    res.Email,
 		Name:     res.Name,
+	}, nil
+}
+
+func (t *userusecase) GetWithUserId(r *UserReq) (*UserRes, error) {
+	// TODO: 本当はRequestごとに構造体分けた方が良いかも
+	user := &model.User{
+		UserUUID: r.UserUUID,
+	}
+	res, err := t.userRepo.Get(user)
+	if err != nil {
+		return nil, err
+	}
+
+	return &UserRes{
+		UserUUID: res.UserUUID,
+		Email:    res.Email,
+		Name:     res.Email,
 	}, nil
 }
 
