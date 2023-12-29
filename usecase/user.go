@@ -58,7 +58,7 @@ func (t *userusecase) GetByUserId(r *UserReq) (*UserRes, error) {
 	user := &model.User{
 		UserUUID: r.UserUUID,
 	}
-	res, err := t.userRepo.Get(user)
+	res, err := t.userRepo.GetByUserId(user)
 	if err != nil {
 		return nil, err
 	}
