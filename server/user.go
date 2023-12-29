@@ -1,6 +1,7 @@
 package server
 
 import (
+	"errors"
 	"net/http"
 
 	firebaseauth "github.com/kid2Ion/selfManageApp-go/adapter/firebase"
@@ -53,7 +54,9 @@ func (t *userHandler) GetByUserId() echo.HandlerFunc {
 		req := new(usecase.UserReq)
 		userId := c.Param("userId")
 		if userId == "" {
-			return c.JSON(http.StatusBadRequest, nil) // TODO: エラー文言を入れる
+			err := errors.New("userId is empty").Error()
+			slog.Error(err)
+			return c.JSON(http.StatusBadRequest, err)
 		}
 		req.FUUID = fUUID
 		req.UserUUID = userId
