@@ -1,6 +1,7 @@
 package server
 
 import (
+	"errors"
 	"net/http"
 
 	firebaseauth "github.com/kid2Ion/selfManageApp-go/adapter/firebase"
@@ -12,6 +13,7 @@ import (
 type (
 	UserHandler interface {
 		Get() echo.HandlerFunc
+		GetByUserId() echo.HandlerFunc
 		Create() echo.HandlerFunc
 		Update() echo.HandlerFunc
 		Delete() echo.HandlerFunc
@@ -38,6 +40,29 @@ func (t *userHandler) Get() echo.HandlerFunc {
 		})
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, err)
+		}
+		return c.JSON(http.StatusOK, res)
+	}
+}
+
+func (t *userHandler) GetByUserId() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		fUUID, err := t.authClient.VerifyIDToken(c)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err)
+		}
+		req := new(usecase.UserReq)
+		userId := c.Param("userId")
+		if userId == "" {
+			err := errors.New("userId is empty").Error()
+			slog.Error(err)
+			return c.JSON(http.StatusBadRequest, err)
+		}
+		req.FUUID = fUUID
+		req.UserUUID = userId
+		res, err := t.userUsecase.GetByUserId(req)
+		if err != nil {
+			return c.JSON(http.StatusNotFound, err)
 		}
 		return c.JSON(http.StatusOK, res)
 	}
