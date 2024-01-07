@@ -1,6 +1,7 @@
 package infra
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/kid2Ion/selfManageApp-go/domain/model"
@@ -11,6 +12,15 @@ import (
 type (
 	UserRepository struct {
 		SqlHandler
+	}
+
+	UserDB struct {
+		UserUUID     string    `db:"user_uuid"`
+		Email        string    `db:"email"`
+		Name         string    `db:"name"`
+		FirebaseUUID string    `db:"firebase_uuid"`
+		CreatedAt    time.Time `db:"created_at"`
+		UpdatedAt    time.Time `db:"updated_at"`
 	}
 )
 
@@ -29,15 +39,26 @@ func (t *UserRepository) Get(u *model.User) (*model.User, error) {
 
 	defer rows.Close()
 
-	var rslt struct {
-		UserUUID     string    `db:"user_uuid"`
-		Email        string    `db:"email"`
-		Name         string    `db:"name"`
-		FirebaseUUID string    `db:"firebase_uuid"`
-		CreatedAt    time.Time `db:"created_at"`
-		UpdatedAt    time.Time `db:"updated_at"`
+	return t.getUser(rows)
+}
+
+func (t *UserRepository) GetByUserId(u *model.User) (*model.User, error) {
+	q := "select * from user_setting.users u where u.user_uuid= $1;"
+	rows, err := t.SqlHandler.DB.Query(q, u.UserUUID)
+	if err != nil {
+		slog.Error("failed to fetch from db: %s", err.Error())
+		return nil, err
 	}
+
+	defer rows.Close()
+
+	return t.getUser(rows)
+}
+
+func (t *UserRepository) getUser(rows *sql.Rows) (*model.User, error) {
+	var rslt UserDB
 	var res model.User
+	var err error
 	if rows.Next() {
 		if err := rows.Scan(&rslt.UserUUID, &rslt.Email, &rslt.Name, &rslt.FirebaseUUID, &rslt.CreatedAt, &rslt.UpdatedAt); err != nil {
 			slog.Error("failed to scan: %s", err.Error())
