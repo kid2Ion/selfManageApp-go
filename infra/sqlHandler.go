@@ -89,7 +89,7 @@ func NewSqlHandler() *SqlHandler {
 			expense_uuid uuid not null,
 			amount numeric not null,
 			title text,
-			day timestamp,
+			day int,
 			created_at timestamp,
 			updated_at timestamp,
 			constraint outcome_pkey primary key (outcome_uuid),
