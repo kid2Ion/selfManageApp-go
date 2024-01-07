@@ -25,9 +25,9 @@ type (
 		FUUID    string
 	}
 	UserRes struct {
-		UserUUID string
-		Email    string
-		Name     string
+		UserUUID string `json:"user_uuid"`
+		Email    string `json:"email"`
+		Name     string `json:"name"`
 	}
 )
 

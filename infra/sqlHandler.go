@@ -22,7 +22,6 @@ func NewSqlHandler() *SqlHandler {
 	if err != nil {
 		panic(err)
 	}
-	// usersテーブル作成
 	cmd := `
 		-- userスキーマ作成
 		create schema if not exists user_setting;
