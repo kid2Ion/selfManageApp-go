@@ -19,30 +19,39 @@ func injectHelloRepository() repository.HelloRepository {
 	sqlHandler := injectDB()
 	return infra.NewHelloRepository(sqlHandler)
 }
-
 func injectHelloUsecase() usecase.HelloUsecase {
 	repo := injectHelloRepository()
 	return usecase.NewHelloUsecase(repo)
 }
-
 func InjectHelloHandler(authClient firebaseauth.AuthClient) server.HelloHandler {
 	usecase := injectHelloUsecase()
 	return server.NewHelloHandler(usecase, authClient)
 }
 
 // user
-
 func injectUserRepository() repository.UserRepository {
 	sqlHandler := injectDB()
 	return infra.NewUserRepository(sqlHandler)
 }
-
 func injectUserUsecase() usecase.UserUsecase {
 	repo := injectUserRepository()
 	return usecase.NewUserUsecase(repo)
 }
-
 func InjectUserHandler(authClient firebaseauth.AuthClient) server.UserHandler {
 	usecase := injectUserUsecase()
 	return server.NewUserHandler(usecase, authClient)
+}
+
+// expense
+func injectExpenseRepository() repository.ExpenseRepository {
+	sqlHandler := injectDB()
+	return infra.NewExpenseRepository(sqlHandler)
+}
+func injectExpenseUsecase() usecase.ExpenseUsecase {
+	repo := injectExpenseRepository()
+	return usecase.NewExpenseUsecase(repo)
+}
+func InjectExpenseHandler(authClient firebaseauth.AuthClient) server.ExpenseHandler {
+	usecase := injectExpenseUsecase()
+	return server.NewExpenseHandler(usecase, authClient)
 }

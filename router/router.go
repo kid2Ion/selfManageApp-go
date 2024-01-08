@@ -18,3 +18,8 @@ func InitUserRouter(e *echo.Echo, userHandler server.UserHandler) {
 	e.PUT("/user", userHandler.Update())
 	e.DELETE("/user", userHandler.Delete())
 }
+
+// expense
+func InitExpenseRouter(e *echo.Echo, expenseHandler server.ExpenseHandler) {
+	e.POST("income/create", expenseHandler.CreateIncome())
+}

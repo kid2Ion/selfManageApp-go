@@ -50,6 +50,9 @@ func main() {
 	// user
 	userHandler := di.InjectUserHandler(authClient)
 	router.InitUserRouter(e, userHandler)
+	// expense
+	expenseHandler := di.InjectExpenseHandler(authClient)
+	router.InitExpenseRouter(e, expenseHandler)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }
