@@ -26,6 +26,16 @@ func (t *ExpenseRepository) CreateIncome(i *model.Income) error {
 	return nil
 }
 
+func (t *ExpenseRepository) CreateOutcome(o *model.Outcome) error {
+	cmd := `insert into expense.outcomes (outcome_uuid, expense_uuid, amount, title, day, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7);`
+	_, err := t.SqlHandler.DB.Exec(cmd, o.OutcomeUUID, o.ExpenseUUID, o.Amount, o.Title, o.Day, o.CreatedAt, o.UpdatedAt)
+	if err != nil {
+		slog.Error("failed to create outcome:\n %s", err.Error())
+		return err
+	}
+	return nil
+}
+
 func (t *ExpenseRepository) GetExpenseUUID(e *model.Expense) (string, error) {
 	q := `select e.expense_uuid from expense.expenses e
 where e.user_uuid = $1
