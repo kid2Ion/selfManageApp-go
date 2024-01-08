@@ -1,17 +1,20 @@
 package usecase
 
 import (
+	"net/http"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/kid2Ion/selfManageApp-go/domain/model"
 	"github.com/kid2Ion/selfManageApp-go/domain/repository"
+	"github.com/labstack/echo"
 )
 
 type (
 	ExpenseUsecase interface {
 		CreateIncome(i *IncomeReq) error
 		CreateOutcome(o *OutcomeReq) error
+		GetExpense(e *ExpenseReq) (*ExpenceRes, error)
 	}
 	expenseUsecase struct {
 		expenseRepo repository.ExpenseRepository
@@ -28,6 +31,27 @@ type (
 		UserUUID    string `json:"user_uuid"`
 		Year        int    `json:"year"`
 		Month       int    `json:"month"`
+		Amount      int    `json:"amount"`
+		Title       string `json:"title"`
+		Day         int    `json:"day"`
+	}
+	ExpenseReq struct {
+		UserUUID string `json:"user_uuid"`
+		Year     int    `json:"year"`
+		Month    int    `json:"month"`
+	}
+	ExpenceRes struct {
+		Year     int            `json:"year"`
+		Month    int            `json:"month"`
+		Income   EIncomeRes     `json:"income"`
+		Outcomes []EOutcomesRes `json:"outcomes"`
+	}
+	EIncomeRes struct {
+		IncomeUUID string `json:"income_uuid"`
+		Amount     int    `json:"amount"`
+	}
+	EOutcomesRes struct {
+		OutcomeUUID string `json:"outcome_uuid"`
 		Amount      int    `json:"amount"`
 		Title       string `json:"title"`
 		Day         int    `json:"day"`
@@ -107,4 +131,52 @@ func (t *expenseUsecase) CreateOutcome(o *OutcomeReq) error {
 		UpdatedAt:   now,
 	}
 	return t.expenseRepo.CreateOutcome(outcome)
+}
+
+func (t *expenseUsecase) GetExpense(e *ExpenseReq) (*ExpenceRes, error) {
+	expence := &model.Expense{
+		UserUUID: e.UserUUID,
+		Year:     e.Year,
+		Month:    e.Month,
+	}
+	// expense探す
+	eUUID, err := t.expenseRepo.GetExpenseUUID(expence)
+	if err != nil {
+		return nil, err
+	}
+	if eUUID == "" {
+		return nil, &echo.HTTPError{
+			Code:    http.StatusOK,
+			Message: "there are no expense",
+		}
+	}
+
+	income, err := t.expenseRepo.GetIncome(eUUID)
+	if err != nil {
+		return nil, err
+	}
+	outcomes, err := t.expenseRepo.GetOutcomes(eUUID)
+	if err != nil {
+		return nil, err
+	}
+	eoutcomeRess := []EOutcomesRes{}
+	for _, v := range outcomes {
+		eo := EOutcomesRes{
+			OutcomeUUID: v.OutcomeUUID,
+			Amount:      v.Amount,
+			Title:       v.Title,
+			Day:         v.Day,
+		}
+		eoutcomeRess = append(eoutcomeRess, eo)
+	}
+	res := &ExpenceRes{
+		Year:  e.Year,
+		Month: e.Month,
+		Income: EIncomeRes{
+			IncomeUUID: income.IncomeUUID,
+			Amount:     income.Amount,
+		},
+		Outcomes: eoutcomeRess,
+	}
+	return res, nil
 }
