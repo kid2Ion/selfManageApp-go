@@ -69,7 +69,7 @@ func NewSqlHandler() *SqlHandler {
 		create table if not exists expense.incomes (
 			income_uuid uuid not null,
 			expense_uuid uuid not null,
-			amount numeric not null,
+			amount int not null,
 			created_at timestamp,
 			updated_at timestamp,
 			constraint income_pkey primary key (income_uuid),
@@ -87,7 +87,7 @@ func NewSqlHandler() *SqlHandler {
 		create table if not exists expense.outcomes (
 			outcome_uuid uuid not null,
 			expense_uuid uuid not null,
-			amount numeric not null,
+			amount int not null,
 			title text,
 			day int,
 			created_at timestamp,
