@@ -1,6 +1,8 @@
 package infra
 
 import (
+	"time"
+
 	"github.com/kid2Ion/selfManageApp-go/domain/model"
 	"github.com/kid2Ion/selfManageApp-go/domain/repository"
 	"golang.org/x/exp/slog"
@@ -26,6 +28,40 @@ func (t *ExpenseRepository) CreateIncome(i *model.Income) error {
 	return nil
 }
 
+func (t *ExpenseRepository) GetIncome(expenseUUID string) (*model.Income, error) {
+	q := `
+select * from expense.incomes i
+where i.expense_uuid = $1
+;`
+
+	rows, err := t.SqlHandler.DB.Query(q, expenseUUID)
+	if err != nil {
+		slog.Error("failed to fetch from db: %s", err.Error())
+		return nil, err
+	}
+	res := new(model.Income)
+	defer rows.Close()
+	if rows.Next() {
+		var rslt struct {
+			IncomeUUID  string    `db:"income_uuid"`
+			ExpenseUUID string    `db:"expense_uuid"`
+			Amount      int       `db:"amount"`
+			CreatedAt   time.Time `db:"created_at"`
+			UpdatedAt   time.Time `db:"updated_at"`
+		}
+		if err := rows.Scan(&rslt.IncomeUUID, &rslt.ExpenseUUID, &rslt.Amount, &rslt.CreatedAt, &rslt.UpdatedAt); err != nil {
+			slog.Error("failed to scan: %s", err.Error())
+			return nil, err
+		}
+		res.IncomeUUID = rslt.IncomeUUID
+		res.ExpenseUUID = rslt.ExpenseUUID
+		res.Amount = rslt.Amount
+		res.CreatedAt = rslt.CreatedAt
+		res.UpdatedAt = rslt.UpdatedAt
+	}
+	return res, nil
+}
+
 func (t *ExpenseRepository) CreateOutcome(o *model.Outcome) error {
 	cmd := `insert into expense.outcomes (outcome_uuid, expense_uuid, amount, title, day, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7);`
 	_, err := t.SqlHandler.DB.Exec(cmd, o.OutcomeUUID, o.ExpenseUUID, o.Amount, o.Title, o.Day, o.CreatedAt, o.UpdatedAt)
@@ -34,6 +70,47 @@ func (t *ExpenseRepository) CreateOutcome(o *model.Outcome) error {
 		return err
 	}
 	return nil
+}
+
+func (t *ExpenseRepository) GetOutcomes(expenseUUID string) ([]model.Outcome, error) {
+	q := `
+select * from expense.outcomes o
+where o.expense_uuid = $1
+order by o.day
+;`
+
+	rows, err := t.SqlHandler.DB.Query(q, expenseUUID)
+	if err != nil {
+		slog.Error("failed to fetch from db: %s", err.Error())
+		return nil, err
+	}
+	res := []model.Outcome{}
+	defer rows.Close()
+	var rslt struct {
+		OutcomeUUID string    `db:"outcome_uuid"`
+		ExpenseUUID string    `db:"expense_uuid"`
+		Amount      int       `db:"amount"`
+		Title       string    `db:"title"`
+		Day         int       `db:"day"`
+		CreatedAt   time.Time `db:"created_at"`
+		UpdatedAt   time.Time `db:"updated_at"`
+	}
+	for rows.Next() {
+		var outcome model.Outcome
+		if err := rows.Scan(&rslt.OutcomeUUID, &rslt.ExpenseUUID, &rslt.Amount, &rslt.Title, &rslt.Day, &rslt.CreatedAt, &rslt.UpdatedAt); err != nil {
+			slog.Error("failed to scan: %s", err.Error())
+			return nil, err
+		}
+		outcome.OutcomeUUID = rslt.OutcomeUUID
+		outcome.ExpenseUUID = rslt.ExpenseUUID
+		outcome.Amount = rslt.Amount
+		outcome.Title = rslt.Title
+		outcome.Day = rslt.Day
+		outcome.CreatedAt = rslt.CreatedAt
+		outcome.UpdatedAt = rslt.UpdatedAt
+		res = append(res, outcome)
+	}
+	return res, nil
 }
 
 func (t *ExpenseRepository) GetExpenseUUID(e *model.Expense) (string, error) {

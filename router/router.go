@@ -23,4 +23,5 @@ func InitUserRouter(e *echo.Echo, userHandler server.UserHandler) {
 func InitExpenseRouter(e *echo.Echo, expenseHandler server.ExpenseHandler) {
 	e.POST("income/create", expenseHandler.CreateIncome())
 	e.POST("outcome/create", expenseHandler.CreateOutcome())
+	e.GET("expense/get", expenseHandler.GetExpense())
 }

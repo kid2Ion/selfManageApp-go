@@ -13,6 +13,7 @@ type (
 	ExpenseHandler interface {
 		CreateIncome() echo.HandlerFunc
 		CreateOutcome() echo.HandlerFunc
+		GetExpense() echo.HandlerFunc
 	}
 	expenseHandler struct {
 		expenseUsecase usecase.ExpenseUsecase
@@ -62,5 +63,24 @@ func (t *expenseHandler) CreateOutcome() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, err)
 		}
 		return c.JSON(http.StatusOK, nil)
+	}
+}
+
+func (t *expenseHandler) GetExpense() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		_, err := t.authClient.VerifyIDToken(c)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err)
+		}
+		req := new(usecase.ExpenseReq)
+		if err := c.Bind(req); err != nil {
+			slog.Error("failed to bind:\n %s", err.Error())
+			return c.JSON(http.StatusBadRequest, err)
+		}
+		res, err := t.expenseUsecase.GetExpense(req)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err)
+		}
+		return c.JSON(http.StatusOK, res)
 	}
 }
