@@ -149,3 +149,30 @@ func (t *ExpenseRepository) CreateExpense(e *model.Expense) error {
 	}
 	return nil
 }
+
+// TODO: domain間のデータ取得は止める
+func (t *ExpenseRepository) GetUserUUIDByFUUID(fUUID string) (string, error) {
+	q := `
+select u.user_uuid from user_setting.users u
+where u.firebase_uuid = $1
+;`
+
+	rows, err := t.SqlHandler.DB.Query(q, fUUID)
+	if err != nil {
+		slog.Error("failed to fetch from db: %s", err.Error())
+		return "", err
+	}
+
+	defer rows.Close()
+	res := ""
+	if rows.Next() {
+		var userUUID string
+		if err := rows.Scan(&userUUID); err != nil {
+			slog.Error("failed to scan: %s", err.Error())
+			return "", err
+		}
+		res = userUUID
+	}
+
+	return res, nil
+}

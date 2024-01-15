@@ -30,15 +30,20 @@ func NewExpenseHandler(
 
 func (t *expenseHandler) CreateIncome() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		_, err := t.authClient.VerifyIDToken(c)
+		fUUID, err := t.authClient.VerifyIDToken(c)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, err)
+		}
+		userUUID, err := t.expenseUsecase.GetUserUUIDByFUUID(fUUID)
+		if err != nil {
+			return err
 		}
 		req := new(usecase.IncomeReq)
 		if err := c.Bind(req); err != nil {
 			slog.Error("failed to bind:\n %s", err.Error())
 			return c.JSON(http.StatusBadRequest, err)
 		}
+		req.UserUUID = userUUID
 		err = t.expenseUsecase.CreateIncome(req)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, err)
@@ -49,15 +54,17 @@ func (t *expenseHandler) CreateIncome() echo.HandlerFunc {
 
 func (t *expenseHandler) CreateOutcome() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		_, err := t.authClient.VerifyIDToken(c)
+		fUUID, err := t.authClient.VerifyIDToken(c)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, err)
 		}
+		userUUID, err := t.expenseUsecase.GetUserUUIDByFUUID(fUUID)
 		req := new(usecase.OutcomeReq)
 		if err := c.Bind(req); err != nil {
 			slog.Error("failed to bind:\n %s", err.Error())
 			return c.JSON(http.StatusBadRequest, err)
 		}
+		req.UserUUID = userUUID
 		err = t.expenseUsecase.CreateOutcome(req)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, err)
@@ -68,15 +75,17 @@ func (t *expenseHandler) CreateOutcome() echo.HandlerFunc {
 
 func (t *expenseHandler) GetExpense() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		_, err := t.authClient.VerifyIDToken(c)
+		fUUID, err := t.authClient.VerifyIDToken(c)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, err)
 		}
+		userUUID, err := t.expenseUsecase.GetUserUUIDByFUUID(fUUID)
 		req := new(usecase.ExpenseReq)
 		if err := c.Bind(req); err != nil {
 			slog.Error("failed to bind:\n %s", err.Error())
 			return c.JSON(http.StatusBadRequest, err)
 		}
+		req.UserUUID = userUUID
 		res, err := t.expenseUsecase.GetExpense(req)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, err)

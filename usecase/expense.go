@@ -15,6 +15,8 @@ type (
 		CreateIncome(i *IncomeReq) error
 		CreateOutcome(o *OutcomeReq) error
 		GetExpense(e *ExpenseReq) (*ExpenceRes, error)
+		// TODO: domain間のデータ取得は止める
+		GetUserUUIDByFUUID(fUUID string) (string, error)
 	}
 	expenseUsecase struct {
 		expenseRepo repository.ExpenseRepository
@@ -177,6 +179,15 @@ func (t *expenseUsecase) GetExpense(e *ExpenseReq) (*ExpenceRes, error) {
 			Amount:     income.Amount,
 		},
 		Outcomes: eoutcomeRess,
+	}
+	return res, nil
+}
+
+// TODO: domain間のデータ取得は止める
+func (t *expenseUsecase) GetUserUUIDByFUUID(fUUID string) (string, error) {
+	res, err := t.expenseRepo.GetUserUUIDByFUUID(fUUID)
+	if err != nil {
+		return "", err
 	}
 	return res, nil
 }

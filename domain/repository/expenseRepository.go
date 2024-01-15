@@ -10,5 +10,7 @@ type (
 		GetOutcomes(expenseUUID string) ([]model.Outcome, error)
 		GetExpenseUUID(e *model.Expense) (string, error)
 		CreateExpense(e *model.Expense) error
+		// TODO: domain間のデータ取得は止める
+		GetUserUUIDByFUUID(fUUID string) (string, error)
 	}
 )
